@@ -3,7 +3,7 @@ import {Image, StyleSheet, View} from 'react-native';
 
 const TopBarComp = () => {
   return (
-    <View style={[styles.row, {margin: 20}]}>
+    <View style={[styles.row, {margin: 20, backgroundColor: '#fff'}]}>
       <Image
         source={require('../../../assets/images/Menu.png')}
         style={{height: 30, width: 30}}
@@ -32,6 +32,8 @@ export default TopBarComp;
 
 const styles = StyleSheet.create({
   row: {
+    flex: 1,
+    backgroundColor: '#fff',
     justifyContent: 'space-between',
     flexDirection: 'row',
     height: 30,

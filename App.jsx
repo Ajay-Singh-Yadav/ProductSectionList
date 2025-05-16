@@ -7,7 +7,7 @@ import {store} from './store/store';
 const App = () => {
   return (
     <Provider store={store}>
-      <View>
+      <View style={{flex: 1 / 2, backgroundColor: '#fff'}}>
         <HomeScreen />
       </View>
     </Provider>

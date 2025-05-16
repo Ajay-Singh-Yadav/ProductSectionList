@@ -1,32 +1,48 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
 
-export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
-  const response = await axios.get('https://dummyjson.com/products?limit=200');
-  console.log(response.data.products);
-  return response.data.products;
-});
+export const fetchPosts = createAsyncThunk(
+  'posts/fetchPosts',
+  async (skip = 0) => {
+    const response = await axios.get(
+      `https://dummyjson.com/products?limit=50&skip=${skip}`,
+    );
+    return {data: response.data.products, skip};
+  },
+);
 
-const PostsSlice = createSlice({
+const postsSlice = createSlice({
   name: 'posts',
   initialState: {
     items: [],
     loading: false,
-    error: null,
+    skip: 0,
+    hasMore: true,
   },
-  reducers: {},
+  reducers: {
+    resetPosts: state => {
+      state.items = [];
+      state.skip = 0;
+      state.hasMore = true;
+    },
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchPosts.pending, state => {
-        (state.loading = true), (state.error = null);
+        state.loading = true;
       })
-      .addCase(fetchPosts.fulfilled, (state, actions) => {
-        (state.loading = false), (state.items = actions.payload);
+      .addCase(fetchPosts.fulfilled, (state, action) => {
+        const newItems = action.payload.data;
+        state.items = [...state.items, ...newItems];
+        state.skip += newItems.length;
+        state.hasMore = newItems.length > 0;
+        state.loading = false;
       })
-      .addCase(fetchPosts.rejected, (state, actions) => {
-        (state.loading = false), (state.error = actions.error.message);
+      .addCase(fetchPosts.rejected, state => {
+        state.loading = false;
       });
   },
 });
 
-export default PostsSlice.reducer;
+export const {resetPosts} = postsSlice.actions;
+export default postsSlice.reducer;

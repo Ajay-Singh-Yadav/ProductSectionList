@@ -1,7 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {
-  ActivityIndicator,
-  FlatList,
   Text,
   View,
   StyleSheet,
@@ -11,21 +9,28 @@ import {
   ScrollView,
   SectionList,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
-import {fetchPosts} from '../../../store/slice/postsSlice';
+import {fetchPosts, resetPosts} from '../../../store/slice/postsSlice';
 import {useSelector, useDispatch} from 'react-redux';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const ProductListScreen = () => {
-  const {items, loading, error} = useSelector(state => state.posts);
+  // const {items, loading, error} = useSelector(state => state.posts);
+
+  const {items, loading, error, skip, hasMore} = useSelector(
+    state => state.posts,
+  );
   const dispatch = useDispatch();
 
   const [searchedText, setSearchedText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [sectionData, setSectionData] = useState([]);
 
+  const [refreshing, setRefreshing] = useState(false);
+
   useEffect(() => {
-    dispatch(fetchPosts());
+    if (items.length === 0) dispatch(fetchPosts(0));
   }, [dispatch]);
 
   const groupByCategory = items => {
@@ -60,18 +65,41 @@ const ProductListScreen = () => {
     setSectionData(groupByCategory(filtered));
   }, [searchedText, items, selectedCategory]);
 
-  if (loading) return <ActivityIndicator size="large" />;
-  if (error) return <Text>Error: {error}</Text>;
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    dispatch(resetPosts());
+    const randomSkip = Math.floor(Math.random() * 60); // Ensure different results
+    await dispatch(fetchPosts(randomSkip));
+    setRefreshing(false);
+  };
+
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      dispatch(fetchPosts(skip));
+    }
+  };
 
   return (
-    <View style={{height: 750, width: '100%'}}>
-      <View style={styles.searchView}>
-        <AntDesign name="search1" size={25} color="black" />
+    <View
+      style={{
+        height: 1000,
+        width: '100%',
+        backgroundColor: 'white',
+        marginTop: 30,
+      }}>
+      <View style={styles.searchContainer}>
+        <AntDesign
+          name="search1"
+          size={20}
+          color="#888"
+          style={styles.searchIcon}
+        />
         <TextInput
-          placeholder="Search"
+          placeholder="Search products..."
           value={searchedText}
           onChangeText={setSearchedText}
-          style={{marginLeft: 10, fontFamily: 'TenorSans-Regular'}}
+          placeholderTextColor="#999"
+          style={styles.searchInput}
         />
       </View>
 
@@ -108,11 +136,20 @@ const ProductListScreen = () => {
       <SectionList
         sections={sectionData}
         keyExtractor={(item, index) => item.id.toString() + index}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.4}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
         renderItem={({item}) => (
           <View style={styles.card}>
             <Image source={{uri: item.thumbnail}} style={styles.image} />
             <View
-              style={{flexDirection: 'column', marginTop: 20, marginStart: 10}}>
+              style={{
+                flexDirection: 'column',
+                marginTop: 20,
+                marginStart: 10,
+              }}>
               <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
                 {item.title}
               </Text>
@@ -172,6 +209,8 @@ const ProductListScreen = () => {
           </View>
         )}
         contentContainerStyle={{paddingBottom: 100}}
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
       />
     </View>
   );
@@ -223,5 +262,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f1f1f1',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginHorizontal: 16,
+    marginVertical: 12,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    fontFamily: 'TenorSans-Regular',
+    color: '#333',
   },
 });
