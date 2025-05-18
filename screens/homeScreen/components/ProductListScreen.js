@@ -79,6 +79,12 @@ const ProductListScreen = () => {
     }
   };
 
+  const getProductPrice = price => {
+    const discount = price - (price * 20) / 100;
+
+    return discount.toFixed(2);
+  };
+
   return (
     <View
       style={{
@@ -148,7 +154,7 @@ const ProductListScreen = () => {
               style={{
                 flexDirection: 'column',
                 marginTop: 20,
-                marginStart: 10,
+                marginStart: 50,
               }}>
               <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
                 {item.title}
@@ -160,26 +166,80 @@ const ProductListScreen = () => {
                   justifyContent: 'flex-start',
                   marginTop: 10,
                 }}>
-                <Text style={{fontSize: 19, fontWeight: 'bold'}}>
-                  ${item.price}
-                </Text>
                 <View
                   style={{
-                    width: 80,
+                    width: 140,
                     height: 30,
                     borderRadius: 15,
                     flexDirection: 'row',
                     borderWidth: 1,
                     alignItems: 'center',
                     justifyContent: 'center',
-                    marginLeft: 20,
+                    marginLeft: 0,
                   }}>
+                  <AntDesign name="star" size={20} />
+                  <AntDesign name="star" size={20} />
+                  <AntDesign name="star" size={20} />
                   <AntDesign name="star" size={20} />
                   <Text style={{fontSize: 15, marginLeft: 8}}>
                     {item.rating}
                   </Text>
                 </View>
               </View>
+
+              {/* Price */}
+              <View
+                style={{
+                  width: 140,
+                  height: 30,
+                  borderRadius: 15,
+                  marginTop: 8,
+                  flexDirection: 'row',
+                  //  borderWidth: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginLeft: 40,
+                }}>
+                <Text style={{color: 'green', marginRight: 5}}>
+                  <AntDesign name="arrowdown" size={20} />
+                  20% off
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    marginRight: 8,
+                    textDecorationLine: 'line-through',
+                    textAlign: 'center',
+                  }}>
+                  ${item.price}
+                </Text>
+                <Text style={{fontSize: 19, fontWeight: 'bold'}}>
+                  ${getProductPrice(item.price)}
+                </Text>
+              </View>
+
+              {/* Delivery */}
+              <View
+                style={{
+                  width: 200,
+                  height: 40,
+                  borderRadius: 15,
+                  marginTop: 8,
+                  flexDirection: 'row',
+                  // borderWidth: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginLeft: 10,
+                }}>
+                <Image
+                  source={require('../../../assets/images/d.png')}
+                  style={{width: 40, height: 30, marginRight: 10}}
+                />
+                <Text style={{fontSize: 14, fontFamily: 'TenorSans-Regular'}}>
+                  EXPRESS 2 day delivery
+                </Text>
+              </View>
+
               <Text
                 style={{
                   fontSize: 16,
@@ -189,21 +249,20 @@ const ProductListScreen = () => {
                 }}>
                 {item.warrantyInformation}
               </Text>
-              <View
-                style={{
-                  height: 40,
-                  width: 150,
-                  borderWidth: 1,
-                  borderRadius: 30,
-                  marginTop: 10,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderColor: 'blue',
-                  backgroundColor: '#cce5ff',
-                }}>
-                <Text style={{fontSize: 13, fontFamily: 'TenorSans-Regular'}}>
-                  Add to cart
-                </Text>
+
+              {/* Button buy and add to cart */}
+              <View style={{flexDirection: 'row'}}>
+                <View style={styles.buttonCard}>
+                  <Text style={{fontSize: 13, fontFamily: 'TenorSans-Regular'}}>
+                    Buy
+                  </Text>
+                </View>
+
+                <View style={[styles.buttonCard, {width: 120}]}>
+                  <Text style={{fontSize: 13, fontFamily: 'TenorSans-Regular'}}>
+                    Add to cart
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
@@ -237,8 +296,8 @@ const styles = StyleSheet.create({
     fontSize: 17,
   },
   image: {
-    width: 150,
-    height: 150,
+    width: 160,
+    height: 170,
     resizeMode: 'cover',
     marginTop: 8,
     marginBottom: 15,
@@ -286,5 +345,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'TenorSans-Regular',
     color: '#333',
+  },
+  buttonCard: {
+    height: 40,
+    width: 100,
+    // borderWidth: 1,
+    borderRadius: 30,
+    marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: 'blue',
+    backgroundColor: '#cce5ff',
+    marginRight: 30,
   },
 });
